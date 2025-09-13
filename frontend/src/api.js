@@ -43,6 +43,47 @@ export const api = {
     if (!response.ok) throw new Error('Failed to get stats');
     return response.json();
   },
+
+  // New API methods for enhanced features
+  async simulateAttack(attackType) {
+    const response = await fetch(`${API_BASE_URL}/simulate-attack?attack_type=${attackType}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!response.ok) throw new Error('Failed to simulate attack');
+    return response.json();
+  },
+
+  async getThreatIntelligence() {
+    const response = await fetch(`${API_BASE_URL}/threat-intelligence`);
+    if (!response.ok) throw new Error('Failed to fetch threat intelligence');
+    return response.json();
+  },
+
+  async getAttackMapData() {
+    const response = await fetch(`${API_BASE_URL}/attack-map-data`);
+    if (!response.ok) throw new Error('Failed to fetch attack map data');
+    return response.json();
+  },
+
+  async executeAction(action, target) {
+    const response = await fetch(`${API_BASE_URL}/execute-action?action=${action}&target=${target}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!response.ok) throw new Error('Failed to execute action');
+    return response.json();
+  },
+
+  async getAnomalyDetection() {
+    const response = await fetch(`${API_BASE_URL}/anomaly-detection`);
+    if (!response.ok) throw new Error('Failed to fetch anomaly detection');
+    return response.json();
+  },
 };
 
 export default api;

@@ -4,7 +4,6 @@ import {
   AlertTriangle, 
   Activity, 
   MessageSquare, 
-  Send,
   RefreshCw,
   Eye,
   Ban,
@@ -15,10 +14,23 @@ import {
   Info,
   Search,
   Filter,
-  XCircle
+  XCircle,
+  Globe,
+  MapPin,
+  Target,
+  Settings
 } from 'lucide-react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import api from './api';
+
+// Import new components
+import AttackSimulator from './components/AttackSimulator';
+import ThreatIntelligence from './components/ThreatIntelligence';
+import AttackMap from './components/AttackMap';
+import AutomatedActions from './components/AutomatedActions';
+import AnomalyDetection from './components/AnomalyDetection';
+import EnhancedChat from './components/EnhancedChat';
+import ThreatLevelGauge from './components/ThreatLevelGauge';
 
 function App() {
   const [logs, setLogs] = useState([]);
@@ -32,6 +44,12 @@ function App() {
   const [analysisResponse, setAnalysisResponse] = useState(null);
   const [analysisLoading, setAnalysisLoading] = useState(false);
   const chatContainerRef = useRef(null);
+
+  // New state for enhanced features
+  const [threatIntelligence, setThreatIntelligence] = useState(null);
+  const [attackMapData, setAttackMapData] = useState(null);
+  const [anomalyData, setAnomalyData] = useState(null);
+  const [simulationResult, setSimulationResult] = useState(null);
 
   // Fetch data functions
   const fetchLogs = async () => {
@@ -64,6 +82,57 @@ function App() {
       setStats(data);
     } catch (error) {
       console.error('Failed to fetch stats:', error);
+    }
+  };
+
+  // New fetch functions for enhanced features
+  const fetchThreatIntelligence = async () => {
+    try {
+      const data = await api.getThreatIntelligence();
+      setThreatIntelligence(data);
+    } catch (error) {
+      console.error('Failed to fetch threat intelligence:', error);
+    }
+  };
+
+  const fetchAttackMapData = async () => {
+    try {
+      const data = await api.getAttackMapData();
+      setAttackMapData(data);
+    } catch (error) {
+      console.error('Failed to fetch attack map data:', error);
+    }
+  };
+
+  const fetchAnomalyData = async () => {
+    try {
+      const data = await api.getAnomalyDetection();
+      setAnomalyData(data);
+    } catch (error) {
+      console.error('Failed to fetch anomaly data:', error);
+    }
+  };
+
+  const handleSimulateAttack = async (attackType) => {
+    try {
+      const result = await api.simulateAttack(attackType);
+      setSimulationResult(result);
+      // Refresh data after simulation
+      await fetchLogs();
+      await fetchStats();
+    } catch (error) {
+      console.error('Failed to simulate attack:', error);
+      throw error;
+    }
+  };
+
+  const handleExecuteAction = async (action, target) => {
+    try {
+      const result = await api.executeAction(action, target);
+      return result;
+    } catch (error) {
+      console.error('Failed to execute action:', error);
+      throw error;
     }
   };
 
@@ -139,15 +208,22 @@ function App() {
 
   // Auto-refresh effect
   useEffect(() => {
+    // Initial fetch
     fetchLogs();
     fetchAnalysis();
     fetchStats();
+    fetchThreatIntelligence();
+    fetchAttackMapData();
+    fetchAnomalyData();
 
     if (autoRefresh) {
       const interval = setInterval(() => {
         fetchLogs();
         fetchAnalysis();
         fetchStats();
+        fetchThreatIntelligence();
+        fetchAttackMapData();
+        fetchAnomalyData();
       }, 10000); // Refresh every 10 seconds
       return () => clearInterval(interval);
     }
@@ -198,26 +274,6 @@ function App() {
     });
 
     return Object.values(hourlyData).sort((a, b) => new Date(a.time) - new Date(b.time));
-  };
-
-  // Generate severity distribution data
-  const getSeverityData = () => {
-    if (!logs.length) return [];
-    
-    const severityCounts = { critical: 0, high: 0, medium: 0, low: 0 };
-    logs.forEach(log => {
-      const severity = log.severity?.toLowerCase();
-      if (severityCounts.hasOwnProperty(severity)) {
-        severityCounts[severity]++;
-      }
-    });
-
-    return [
-      { name: 'Critical', value: severityCounts.critical, color: '#ef4444' },
-      { name: 'High', value: severityCounts.high, color: '#f97316' },
-      { name: 'Medium', value: severityCounts.medium, color: '#f59e0b' },
-      { name: 'Low', value: severityCounts.low, color: '#22c55e' }
-    ].filter(item => item.value > 0);
   };
 
   const StatCard = ({ icon, title, value, subtitle, color = "cyber-primary" }) => (
@@ -416,19 +472,24 @@ function App() {
 
       {/* Navigation Tabs */}
       <nav className="bg-bg-secondary border-b border-border-primary px-6">
-        <div className="flex space-x-8">
+        <div className="flex space-x-6 overflow-x-auto">
           {[
             { id: 'dashboard', label: 'Dashboard', icon: Activity },
+            { id: 'simulation', label: 'Attack Simulation', icon: Target },
+            { id: 'intelligence', label: 'Threat Intel', icon: Globe },
+            { id: 'map', label: 'Attack Map', icon: MapPin },
+            { id: 'actions', label: 'Auto Actions', icon: Settings },
+            { id: 'anomalies', label: 'Anomalies', icon: AlertTriangle },
             { id: 'logs', label: 'Security Logs', icon: Eye },
             { id: 'analysis', label: 'AI Analysis', icon: Zap },
-            { id: 'chat', label: 'Assistant', icon: MessageSquare }
+            { id: 'chat', label: 'AI Assistant', icon: MessageSquare }
           ].map(tab => {
             const Icon = tab.icon;
             return (
               <button
                 key={tab.id}
                 onClick={() => setSelectedTab(tab.id)}
-                className={`flex items-center space-x-2 px-4 py-3 border-b-2 transition-colors ${
+                className={`flex items-center space-x-2 px-4 py-3 border-b-2 transition-colors whitespace-nowrap ${
                   selectedTab === tab.id
                     ? 'border-cyber-primary text-cyber-primary'
                     : 'border-transparent text-text-secondary hover:text-text-primary hover:border-border-secondary'
@@ -481,10 +542,10 @@ function App() {
               </div>
             </div>
 
-            {/* Charts */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Charts and Threat Level */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Activity Timeline */}
-              <div className="bg-bg-secondary border border-border-primary rounded-lg p-6">
+              <div className="lg:col-span-2 bg-bg-secondary border border-border-primary rounded-lg p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold text-text-primary">Activity Timeline</h3>
                   <TrendingUp className="h-5 w-5 text-cyber-primary" />
@@ -521,49 +582,90 @@ function App() {
                 </div>
               </div>
 
-              {/* Threat Distribution */}
-              <div className="bg-bg-secondary border border-border-primary rounded-lg p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-text-primary">Threat Severity Distribution</h3>
-                  <AlertCircle className="h-5 w-5 text-cyber-warning" />
-                </div>
-                <div className="h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={getSeverityData()}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={60}
-                        outerRadius={100}
-                        paddingAngle={5}
-                        dataKey="value"
-                      >
-                        {getSeverityData().map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Pie>
-                      <Tooltip 
-                        contentStyle={{
-                          backgroundColor: '#1e293b',
-                          border: '1px solid #3b82f6',
-                          borderRadius: '8px',
-                          color: '#f8fafc'
-                        }}
-                      />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
-                <div className="flex justify-center space-x-4 mt-4">
-                  {getSeverityData().map((entry, index) => (
-                    <div key={index} className="flex items-center space-x-2">
-                      <div className={`w-3 h-3 rounded-full`} style={{backgroundColor: entry.color}}></div>
-                      <span className="text-text-secondary text-sm">{entry.name} ({entry.value})</span>
-                    </div>
-                  ))}
-                </div>
+              {/* Real-time Threat Level Gauge */}
+              <div>
+                <ThreatLevelGauge threatLevel="dynamic" stats={stats} />
               </div>
             </div>
+
+            {/* Quick Actions Overview */}
+            <div className="bg-bg-secondary border border-border-primary rounded-lg p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-text-primary">Quick Security Actions</h3>
+                <Shield className="h-5 w-5 text-cyber-primary" />
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <button 
+                  onClick={() => setSelectedTab('simulation')}
+                  className="flex flex-col items-center p-4 bg-red-50 hover:bg-red-100 rounded-lg transition-colors border border-red-200"
+                >
+                  <Target className="w-8 h-8 text-red-600 mb-2" />
+                  <span className="text-sm font-medium text-red-800">Attack Simulation</span>
+                </button>
+                <button 
+                  onClick={() => setSelectedTab('intelligence')}
+                  className="flex flex-col items-center p-4 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors border border-blue-200"
+                >
+                  <Globe className="w-8 h-8 text-blue-600 mb-2" />
+                  <span className="text-sm font-medium text-blue-800">Threat Intelligence</span>
+                </button>
+                <button 
+                  onClick={() => setSelectedTab('map')}
+                  className="flex flex-col items-center p-4 bg-green-50 hover:bg-green-100 rounded-lg transition-colors border border-green-200"
+                >
+                  <MapPin className="w-8 h-8 text-green-600 mb-2" />
+                  <span className="text-sm font-medium text-green-800">Global Attack Map</span>
+                </button>
+                <button 
+                  onClick={() => setSelectedTab('actions')}
+                  className="flex flex-col items-center p-4 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors border border-purple-200"
+                >
+                  <Settings className="w-8 h-8 text-purple-600 mb-2" />
+                  <span className="text-sm font-medium text-purple-800">Auto Actions</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* NEW ENHANCED FEATURES */}
+        {selectedTab === 'simulation' && (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2">
+                <AttackSimulator 
+                  onSimulateAttack={handleSimulateAttack} 
+                  simulationResult={simulationResult}
+                />
+              </div>
+              <div>
+                <ThreatLevelGauge threatLevel="dynamic" stats={stats} />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {selectedTab === 'intelligence' && (
+          <div className="space-y-6">
+            <ThreatIntelligence threatData={threatIntelligence} />
+          </div>
+        )}
+
+        {selectedTab === 'map' && (
+          <div className="space-y-6">
+            <AttackMap attackMapData={attackMapData} />
+          </div>
+        )}
+
+        {selectedTab === 'actions' && (
+          <div className="space-y-6">
+            <AutomatedActions onExecuteAction={handleExecuteAction} />
+          </div>
+        )}
+
+        {selectedTab === 'anomalies' && (
+          <div className="space-y-6">
+            <AnomalyDetection anomalyData={anomalyData} />
           </div>
         )}
 
@@ -792,85 +894,11 @@ function App() {
 
         {selectedTab === 'chat' && (
           <div className="space-y-6">
-            <h2 className="text-lg font-semibold text-text-primary">Security Assistant</h2>
-            
-            <div className="bg-bg-secondary border border-border-primary rounded-lg h-[600px] flex flex-col">
-              {/* Chat Header */}
-              <div className="flex items-center justify-between p-4 border-b border-border-primary">
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-cyber-primary rounded-full flex items-center justify-center">
-                    <MessageSquare className="h-4 w-4 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-text-primary">AI Security Assistant</h3>
-                    <p className="text-text-muted text-xs">Powered by Gemini AI</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-cyber-success rounded-full"></div>
-                  <span className="text-cyber-success text-sm">Online</span>
-                </div>
-              </div>
-
-              {/* Chat Messages */}
-              <div 
-                ref={chatContainerRef}
-                className="flex-1 overflow-y-auto p-4 space-y-4"
-              >
-                {chatHistory.length === 0 && (
-                  <div className="text-center py-8">
-                    <MessageSquare className="h-12 w-12 text-text-muted mx-auto mb-4" />
-                    <p className="text-text-secondary mb-2">Welcome to the Security Assistant</p>
-                    <p className="text-text-muted text-sm">Ask me about threats, security analysis, or recommendations</p>
-                  </div>
-                )}
-
-                {chatHistory.map((msg, i) => (
-                  <div key={i} className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`max-w-[80%] p-3 rounded-lg ${
-                      msg.type === 'user' 
-                        ? 'bg-cyber-primary text-white ml-4' 
-                        : 'bg-bg-tertiary text-text-secondary mr-4'
-                    }`}>
-                      <p className="text-sm leading-relaxed">{msg.content}</p>
-                    </div>
-                  </div>
-                ))}
-                
-                {loading && (
-                  <div className="flex justify-start">
-                    <div className="bg-bg-tertiary text-text-secondary p-3 rounded-lg mr-4">
-                      <div className="flex items-center space-x-2">
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-cyber-primary"></div>
-                        <span className="text-sm">Analyzing...</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Chat Input */}
-              <div className="p-4 border-t border-border-primary">
-                <div className="flex space-x-3">
-                  <input
-                    type="text"
-                    value={currentMessage}
-                    onChange={(e) => setCurrentMessage(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                    placeholder="Ask about security threats, analysis, or get recommendations..."
-                    className="flex-1 bg-bg-tertiary border border-border-primary rounded-lg px-4 py-2 text-text-primary placeholder-text-muted focus:outline-none focus:border-cyber-primary"
-                    disabled={loading}
-                  />
-                  <button
-                    onClick={handleSendMessage}
-                    disabled={loading || !currentMessage.trim()}
-                    className="px-4 py-2 bg-cyber-primary text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <Send className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-            </div>
+            <EnhancedChat 
+              onSendMessage={handleSendMessage}
+              chatHistory={chatHistory}
+              loading={loading}
+            />
           </div>
         )}
       </main>

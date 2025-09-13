@@ -4,6 +4,8 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime, timedelta, timezone
 import os
+import random
+import json
 from dotenv import load_dotenv
 
 from database import get_db, SecurityLog, Base, engine
@@ -288,6 +290,226 @@ async def get_stats(db: Session = Depends(get_db)):
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Stats retrieval failed: {str(e)}")
+
+@app.post("/simulate-attack")
+async def simulate_attack(attack_type: str, db: Session = Depends(get_db)):
+    """Simulate various cyber attack scenarios for demo purposes"""
+    try:
+        attack_scenarios = {
+            "ddos": {
+                "name": "DDoS Attack",
+                "severity": "critical",
+                "logs": [
+                    {"source_ip": "203.0.113.45", "message": "High volume traffic detected from malicious IP", "event_type": "DDoS Attack"},
+                    {"source_ip": "198.51.100.32", "message": "Network congestion threshold exceeded", "event_type": "Network Overload"},
+                    {"source_ip": "203.0.113.67", "message": "Coordinated botnet attack identified", "event_type": "Botnet Activity"}
+                ]
+            },
+            "phishing": {
+                "name": "Phishing Campaign",
+                "severity": "high",
+                "logs": [
+                    {"source_ip": "192.0.2.44", "message": "Suspicious email with malicious attachment detected", "event_type": "Phishing Attempt"},
+                    {"source_ip": "Internal", "message": "User clicked suspicious link - credential harvesting attempt", "event_type": "Social Engineering"},
+                    {"source_ip": "192.0.2.44", "message": "Domain spoofing detected in email header", "event_type": "Domain Spoofing"}
+                ]
+            },
+            "insider_threat": {
+                "name": "Insider Threat",
+                "severity": "critical",
+                "logs": [
+                    {"source_ip": "192.168.1.45", "message": "Unusual data access pattern by privileged user", "event_type": "Insider Threat"},
+                    {"source_ip": "192.168.1.45", "message": "Large file download outside business hours", "event_type": "Data Exfiltration"},
+                    {"source_ip": "192.168.1.45", "message": "Access attempt to restricted military database", "event_type": "Unauthorized Access"}
+                ]
+            },
+            "ransomware": {
+                "name": "Ransomware Attack",
+                "severity": "critical",
+                "logs": [
+                    {"source_ip": "203.0.113.88", "message": "File encryption behavior detected on endpoint", "event_type": "Ransomware"},
+                    {"source_ip": "203.0.113.88", "message": "Lateral movement across network shares", "event_type": "Network Propagation"},
+                    {"source_ip": "203.0.113.88", "message": "Backup systems targeted for deletion", "event_type": "Backup Compromise"}
+                ]
+            }
+        }
+        
+        if attack_type not in attack_scenarios:
+            raise HTTPException(status_code=400, detail="Invalid attack type")
+        
+        scenario = attack_scenarios[attack_type]
+        created_logs = []
+        
+        # Generate attack logs
+        for i, log_data in enumerate(scenario["logs"]):
+            log_entry = SecurityLog(
+                event_type=log_data["event_type"],
+                severity=scenario["severity"],
+                source_ip=log_data["source_ip"],
+                dest_ip="192.168.1.0/24",
+                message=f"🚨 SIMULATED ATTACK: {log_data['message']} [DEMO]",
+                timestamp=datetime.utcnow() - timedelta(seconds=i*30)
+            )
+            db.add(log_entry)
+            created_logs.append(log_entry)
+        
+        db.commit()
+        
+        return {
+            "status": "success",
+            "attack_type": scenario["name"],
+            "logs_created": len(created_logs),
+            "message": f"Successfully simulated {scenario['name']} with {len(created_logs)} security events"
+        }
+        
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Attack simulation failed: {str(e)}")
+
+@app.get("/threat-intelligence")
+async def get_threat_intelligence():
+    """Get simulated global threat intelligence data"""
+    try:
+        # Simulate real-time threat intelligence
+        threat_feeds = [
+            {
+                "id": "THREAT-2024-001",
+                "title": "APT29 Targeting Military Infrastructure",
+                "severity": "critical",
+                "region": "Southeast Asia",
+                "description": "Nation-state malware variant targeting defense contractors",
+                "indicators": ["203.0.113.0/24", "malware-c2.example.com"],
+                "timestamp": datetime.utcnow().isoformat(),
+                "confidence": "high"
+            },
+            {
+                "id": "THREAT-2024-002", 
+                "title": "Zero-Day Exploit in Defense Systems",
+                "severity": "critical",
+                "region": "Global",
+                "description": "Critical vulnerability in military communication systems",
+                "indicators": ["CVE-2024-XXXX", "Remote Code Execution"],
+                "timestamp": (datetime.utcnow() - timedelta(hours=2)).isoformat(),
+                "confidence": "confirmed"
+            },
+            {
+                "id": "THREAT-2024-003",
+                "title": "Ransomware Campaign Targeting Government",
+                "severity": "high", 
+                "region": "North America",
+                "description": "Advanced ransomware with military-grade encryption",
+                "indicators": ["198.51.100.0/24", "ransom-payment.onion"],
+                "timestamp": (datetime.utcnow() - timedelta(hours=4)).isoformat(),
+                "confidence": "medium"
+            }
+        ]
+        
+        return {
+            "feeds": threat_feeds,
+            "last_updated": datetime.utcnow().isoformat(),
+            "total_threats": len(threat_feeds)
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve threat intelligence: {str(e)}")
+
+@app.get("/attack-map-data")
+async def get_attack_map_data():
+    """Get geographical data for attack visualization"""
+    try:
+        # Simulate real-time attack origins for world map
+        attack_origins = [
+            {"country": "China", "lat": 35.8617, "lng": 104.1954, "attacks": 45, "severity": "high"},
+            {"country": "Russia", "lat": 61.5240, "lng": 105.3188, "attacks": 32, "severity": "critical"},
+            {"country": "North Korea", "lat": 40.3399, "lng": 127.5101, "attacks": 28, "severity": "critical"},
+            {"country": "Iran", "lat": 32.4279, "lng": 53.6880, "attacks": 23, "severity": "high"},
+            {"country": "Unknown", "lat": 0, "lng": 0, "attacks": 67, "severity": "medium"},
+            {"country": "Brazil", "lat": -14.2350, "lng": -51.9253, "attacks": 12, "severity": "low"},
+            {"country": "Romania", "lat": 45.9432, "lng": 24.9668, "attacks": 8, "severity": "medium"}
+        ]
+        
+        return {
+            "origins": attack_origins,
+            "timestamp": datetime.utcnow().isoformat(),
+            "total_attacks": sum(origin["attacks"] for origin in attack_origins)
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve attack map data: {str(e)}")
+
+@app.post("/execute-action")
+async def execute_security_action(action: str, target: str):
+    """Execute automated security actions"""
+    try:
+        actions = {
+            "block_ip": f"✅ IP Address {target} has been blocked at firewall level",
+            "isolate_host": f"✅ Host {target} has been isolated from network",
+            "escalate_incident": f"✅ Incident escalated to SOC Level 2 - Reference: INC-{random.randint(1000,9999)}",
+            "enable_monitoring": f"✅ Enhanced monitoring enabled for {target}",
+            "quarantine_file": f"✅ File {target} has been quarantined successfully"
+        }
+        
+        if action not in actions:
+            raise HTTPException(status_code=400, detail="Invalid action type")
+            
+        return {
+            "status": "executed",
+            "action": action,
+            "target": target,
+            "message": actions[action],
+            "executed_at": datetime.utcnow().isoformat(),
+            "execution_id": f"EXEC-{random.randint(10000,99999)}"
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Action execution failed: {str(e)}")
+
+@app.get("/anomaly-detection")
+async def get_anomaly_detection():
+    """Get anomaly detection results"""
+    try:
+        anomalies = [
+            {
+                "id": "ANOMALY-001",
+                "type": "Impossible Travel",
+                "description": "User admin_miller logged in from India and 5 minutes later from Russia",
+                "severity": "high",
+                "user": "admin_miller",
+                "locations": ["Mumbai, India", "Moscow, Russia"],
+                "confidence": 0.95,
+                "timestamp": datetime.utcnow().isoformat()
+            },
+            {
+                "id": "ANOMALY-002", 
+                "type": "Unusual Data Access",
+                "description": "Database access pattern 300% above normal baseline",
+                "severity": "medium",
+                "user": "service_account_db",
+                "baseline": "Normal: 150 queries/hour",
+                "current": "Current: 450 queries/hour",
+                "confidence": 0.87,
+                "timestamp": (datetime.utcnow() - timedelta(minutes=15)).isoformat()
+            },
+            {
+                "id": "ANOMALY-003",
+                "type": "Off-Hours Activity",
+                "description": "Critical system access during maintenance window",
+                "severity": "medium",
+                "user": "contractor_smith",
+                "expected": "No access during 02:00-04:00 UTC",
+                "confidence": 0.78,
+                "timestamp": (datetime.utcnow() - timedelta(hours=1)).isoformat()
+            }
+        ]
+        
+        return {
+            "anomalies": anomalies,
+            "total_anomalies": len(anomalies),
+            "last_scan": datetime.utcnow().isoformat()
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve anomalies: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn
