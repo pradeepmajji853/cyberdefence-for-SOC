@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+    <style>
+        body { background: black; color: white; font-family: monospace; padding: 20px; }
+        .log { margin: 10px 0; padding: 10px; background: #333; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>Cyber Defense API Test</h1>
+    <div id="status">Testing API...</div>
+    <div id="logs"></div>
+    
+    <script>
+        const statusDiv = document.getElementById('status');
+        const logsDiv = document.getElementById('logs');
+        
+        async function testAPI() {
+            try {
+                statusDiv.innerHTML = '<span class="success">Testing logs endpoint...</span>';
+                
+                const response = await fetch('http://localhost:8000/logs?limit=5');
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                statusDiv.innerHTML = `<span class="success">✓ API Working! Found ${data.length} logs</span>`;
+                
+                logsDiv.innerHTML = data.map(log => 
+                    `<div class="log">
+                        <strong>${log.event_type}</strong> - ${log.severity}<br>
+                        ${log.source_ip} → ${log.dest_ip}<br>
+                        ${log.message}
+                    </div>`
+                ).join('');
+                
+            } catch (error) {
+                statusDiv.innerHTML = `<span class="error">✗ API Error: ${error.message}</span>`;
+                console.error('API Test Error:', error);
+            }
+        }
+        
+        testAPI();
+    </script>
+</body>
+</html>

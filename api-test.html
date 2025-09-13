@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Test - Logs Verification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #1a1a1a;
+            color: #ffffff;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success { background-color: #4CAF50; }
+        .error { background-color: #f44336; }
+        .warning { background-color: #ff9800; }
+        .log {
+            background-color: #2d2d2d;
+            border: 1px solid #444;
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .critical { border-left: 4px solid #ff4444; }
+        .high { border-left: 4px solid #ff8800; }
+        .medium { border-left: 4px solid #ffaa00; }
+        .low { border-left: 4px solid #44aa44; }
+        .demo-log { background-color: #2d3d2d; border: 2px solid #4CAF50; }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background-color: #2d2d2d;
+            border: 1px solid #444;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .refresh-btn {
+            background-color: #2196F3;
+        }
+        .generate-btn {
+            background-color: #ff9800;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛡️ Cyber Defense Assistant - API Verification</h1>
+        
+        <div class="stats" id="stats">
+            <!-- Stats will be populated here -->
+        </div>
+        
+        <div>
+            <button onclick="testAPI()" class="refresh-btn">🔄 Refresh Data</button>
+            <button onclick="generateLog()" class="generate-btn">➕ Generate Demo Log</button>
+        </div>
+        
+        <div id="status" class="status"></div>
+        
+        <h2>📊 Recent Security Logs</h2>
+        <div id="logs">
+            <!-- Logs will be populated here -->
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8000';
+
+        async function testAPI() {
+            const statusDiv = document.getElementById('status');
+            const logsDiv = document.getElementById('logs');
+            const statsDiv = document.getElementById('stats');
+            
+            try {
+                statusDiv.innerHTML = '<span style="color: orange;">🔄 Testing API connection...</span>';
+                
+                // Test logs endpoint with increased limit
+                const logsResponse = await fetch(`${API_BASE_URL}/logs?limit=100`);
+                if (!logsResponse.ok) throw new Error(`HTTP ${logsResponse.status}`);
+                const logs = await logsResponse.json();
+                
+                // Test stats endpoint
+                const statsResponse = await fetch(`${API_BASE_URL}/stats`);
+                const stats = statsResponse.ok ? await statsResponse.json() : null;
+                
+                // Update status
+                const demoLogCount = logs.filter(log => log.message.includes('PERSISTENT_DEMO')).length;
+                statusDiv.innerHTML = `
+                    <span class="success">✅ API Working! Retrieved ${logs.length} logs (${demoLogCount} persistent demo logs)</span>
+                `;
+                
+                // Update stats
+                if (stats) {
+                    statsDiv.innerHTML = `
+                        <div class="stat-card">
+                            <div class="stat-value">${stats.total_logs}</div>
+                            <div>Total Logs</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" style="color: #ff4444;">${stats.last_24h_severity.critical || 0}</div>
+                            <div>Critical Threats</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" style="color: #ff8800;">${stats.last_24h_severity.high || 0}</div>
+                            <div>High Threats</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" style="color: #ffaa00;">${stats.last_24h_severity.medium || 0}</div>
+                            <div>Medium Threats</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" style="color: #44aa44;">${stats.last_24h_severity.low || 0}</div>
+                            <div>Low Priority</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${demoLogCount}</div>
+                            <div>Persistent Demos</div>
+                        </div>
+                    `;
+                }
+                
+                // Display logs
+                logsDiv.innerHTML = logs.map((log, index) => {
+                    const isDemoLog = log.message.includes('PERSISTENT_DEMO');
+                    const demoClass = isDemoLog ? 'demo-log' : '';
+                    const severityClass = log.severity.toLowerCase();
+                    const demoMarker = isDemoLog ? '🎯 ' : '';
+                    
+                    return `
+                        <div class="log ${severityClass} ${demoClass}">
+                            <strong>${demoMarker}${log.event_type}</strong> 
+                            <span style="float: right; color: #888;">${new Date(log.timestamp).toLocaleString()}</span>
+                            <br>
+                            <strong>Severity:</strong> ${log.severity.toUpperCase()}
+                            <br>
+                            <strong>Source:</strong> ${log.source_ip} → <strong>Dest:</strong> ${log.dest_ip}
+                            <br>
+                            <em>${log.message}</em>
+                        </div>
+                    `;
+                }).join('');
+                
+            } catch (error) {
+                statusDiv.innerHTML = `<span class="error">❌ API Error: ${error.message}</span>`;
+                console.error('API Test Error:', error);
+            }
+        }
+        
+        async function generateLog() {
+            const statusDiv = document.getElementById('status');
+            
+            try {
+                statusDiv.innerHTML = '<span style="color: orange;">🔄 Generating new log...</span>';
+                
+                // Generate a realistic log entry
+                const templates = [
+                    {
+                        event_type: 'Advanced Persistent Threat',
+                        severity: 'critical',
+                        message: 'Nation-state actor detected in network. Advanced malware with C2 communication identified.'
+                    },
+                    {
+                        event_type: 'Network Intrusion',
+                        severity: 'high', 
+                        message: 'Lateral movement detected across network segments. Multiple systems compromised.'
+                    },
+                    {
+                        event_type: 'Phishing Campaign',
+                        severity: 'medium',
+                        message: 'Targeted spear-phishing email against military personnel detected and blocked.'
+                    }
+                ];
+                
+                const template = templates[Math.floor(Math.random() * templates.length)];
+                const logEntry = {
+                    timestamp: new Date().toISOString(),
+                    source_ip: '203.0.113.' + Math.floor(Math.random() * 255),
+                    dest_ip: '192.168.1.' + Math.floor(Math.random() * 255),
+                    event_type: template.event_type,
+                    severity: template.severity,
+                    message: template.message + ' [Generated via API test page]'
+                };
+                
+                const response = await fetch(`${API_BASE_URL}/logs`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(logEntry),
+                });
+                
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                
+                statusDiv.innerHTML = '<span class="success">✅ Log generated successfully!</span>';
+                
+                // Refresh the display
+                setTimeout(testAPI, 1000);
+                
+            } catch (error) {
+                statusDiv.innerHTML = `<span class="error">❌ Generate Error: ${error.message}</span>`;
+                console.error('Generate Log Error:', error);
+            }
+        }
+        
+        // Initial load
+        testAPI();
+        
+        // Auto-refresh every 30 seconds
+        setInterval(testAPI, 30000);
+    </script>
+</body>
+</html>
