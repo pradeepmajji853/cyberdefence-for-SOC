@@ -25,15 +25,15 @@ const ThreatLevelGauge = ({ threatLevel, stats }) => {
   const getThreatIcon = () => {
     switch (threat.level) {
       case 'critical':
-        return <AlertTriangle className="w-8 h-8 text-red-500" />;
+        return <AlertTriangle className="w-8 h-8 text-cyber-danger" />;
       case 'high':
-        return <TrendingUp className="w-8 h-8 text-orange-500" />;
+        return <TrendingUp className="w-8 h-8 text-cyber-warning" />;
       case 'medium':
-        return <Activity className="w-8 h-8 text-yellow-500" />;
+        return <Activity className="w-8 h-8 text-cyber-accent" />;
       case 'low':
-        return <Shield className="w-8 h-8 text-green-500" />;
+        return <Shield className="w-8 h-8 text-cyber-success" />;
       default:
-        return <Shield className="w-8 h-8 text-gray-500" />;
+        return <Shield className="w-8 h-8 text-text-muted" />;
     }
   };
 
@@ -59,14 +59,20 @@ const ThreatLevelGauge = ({ threatLevel, stats }) => {
   const strokeDasharray = `${threat.percentage / 100 * circumference} ${circumference}`;
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6">
+    <div className="bg-bg-secondary border border-border-primary rounded-lg shadow-lg p-6">
       <div className="flex items-center gap-3 mb-6">
-        <div className={`p-2 bg-${threat.color}-100 rounded-lg`}>
+        <div className={`p-2 ${
+          threat.color === 'red' ? 'bg-cyber-danger bg-opacity-20' :
+          threat.color === 'orange' ? 'bg-cyber-warning bg-opacity-20' :
+          threat.color === 'yellow' ? 'bg-cyber-accent bg-opacity-20' :
+          threat.color === 'green' ? 'bg-cyber-success bg-opacity-20' :
+          'bg-bg-tertiary'
+        } rounded-lg`}>
           {getThreatIcon()}
         </div>
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">Threat Level</h3>
-          <p className="text-sm text-gray-600">Real-time security posture assessment</p>
+          <h3 className="text-lg font-semibold text-text-primary">Threat Level</h3>
+          <p className="text-sm text-text-muted">Real-time security posture assessment</p>
         </div>
       </div>
 
@@ -110,10 +116,20 @@ const ThreatLevelGauge = ({ threatLevel, stats }) => {
           
           {/* Center content */}
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <div className={`text-3xl font-bold text-${threat.color}-600 mb-1`}>
+            <div className={`text-3xl font-bold mb-1 ${
+              threat.color === 'red' ? 'text-cyber-danger' :
+              threat.color === 'orange' ? 'text-cyber-warning' :
+              threat.color === 'yellow' ? 'text-cyber-accent' :
+              'text-cyber-success'
+            }`}>
               {threat.percentage}%
             </div>
-            <div className={`text-sm font-medium text-${threat.color}-800 uppercase tracking-wide`}>
+            <div className={`text-sm font-medium uppercase tracking-wide ${
+              threat.color === 'red' ? 'text-cyber-danger opacity-75' :
+              threat.color === 'orange' ? 'text-cyber-warning opacity-75' :
+              threat.color === 'yellow' ? 'text-cyber-accent opacity-75' :
+              'text-cyber-success opacity-75'
+            }`}>
               {threat.level}
             </div>
           </div>
@@ -121,7 +137,7 @@ const ThreatLevelGauge = ({ threatLevel, stats }) => {
 
         {/* Threat Level Description */}
         <div className="text-center mb-6">
-          <p className="text-sm text-gray-700 max-w-xs">
+          <p className="text-sm text-text-muted max-w-xs">
             {getThreatMessage()}
           </p>
         </div>
@@ -129,29 +145,29 @@ const ThreatLevelGauge = ({ threatLevel, stats }) => {
         {/* Quick Stats */}
         {stats && (
           <div className="w-full grid grid-cols-2 gap-4 text-center">
-            <div className="bg-red-50 rounded-lg p-3">
-              <div className="text-xl font-bold text-red-600">
+            <div className="bg-cyber-danger bg-opacity-20 border border-cyber-danger border-opacity-30 rounded-lg p-3">
+              <div className="text-xl font-bold text-cyber-danger">
                 {stats.last_24h_severity?.critical || 0}
               </div>
-              <div className="text-xs text-red-800">Critical</div>
+              <div className="text-xs text-cyber-danger opacity-75">Critical</div>
             </div>
-            <div className="bg-orange-50 rounded-lg p-3">
-              <div className="text-xl font-bold text-orange-600">
+            <div className="bg-cyber-warning bg-opacity-20 border border-cyber-warning border-opacity-30 rounded-lg p-3">
+              <div className="text-xl font-bold text-cyber-warning">
                 {stats.last_24h_severity?.high || 0}
               </div>
-              <div className="text-xs text-orange-800">High</div>
+              <div className="text-xs text-cyber-warning opacity-75">High</div>
             </div>
-            <div className="bg-yellow-50 rounded-lg p-3">
-              <div className="text-xl font-bold text-yellow-600">
+            <div className="bg-cyber-accent bg-opacity-20 border border-cyber-accent border-opacity-30 rounded-lg p-3">
+              <div className="text-xl font-bold text-cyber-accent">
                 {stats.last_24h_severity?.medium || 0}
               </div>
-              <div className="text-xs text-yellow-800">Medium</div>
+              <div className="text-xs text-cyber-accent opacity-75">Medium</div>
             </div>
-            <div className="bg-blue-50 rounded-lg p-3">
-              <div className="text-xl font-bold text-blue-600">
+            <div className="bg-cyber-success bg-opacity-20 border border-cyber-success border-opacity-30 rounded-lg p-3">
+              <div className="text-xl font-bold text-cyber-success">
                 {stats.last_24h_severity?.low || 0}
               </div>
-              <div className="text-xs text-blue-800">Low</div>
+              <div className="text-xs text-cyber-success opacity-75">Low</div>
             </div>
           </div>
         )}

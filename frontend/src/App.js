@@ -599,31 +599,31 @@ function App() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <button 
                   onClick={() => setSelectedTab('simulation')}
-                  className="flex flex-col items-center p-4 bg-red-50 hover:bg-red-100 rounded-lg transition-colors border border-red-200"
+                  className="flex flex-col items-center p-4 bg-cyber-danger bg-opacity-20 hover:bg-opacity-30 rounded-lg transition-colors border border-cyber-danger border-opacity-30"
                 >
-                  <Target className="w-8 h-8 text-red-600 mb-2" />
-                  <span className="text-sm font-medium text-red-800">Attack Simulation</span>
+                  <Target className="w-8 h-8 text-cyber-danger mb-2" />
+                  <span className="text-sm font-medium text-cyber-danger">Attack Simulation</span>
                 </button>
                 <button 
                   onClick={() => setSelectedTab('intelligence')}
-                  className="flex flex-col items-center p-4 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors border border-blue-200"
+                  className="flex flex-col items-center p-4 bg-cyber-primary bg-opacity-20 hover:bg-opacity-30 rounded-lg transition-colors border border-cyber-primary border-opacity-30"
                 >
-                  <Globe className="w-8 h-8 text-blue-600 mb-2" />
-                  <span className="text-sm font-medium text-blue-800">Threat Intelligence</span>
+                  <Globe className="w-8 h-8 text-cyber-primary mb-2" />
+                  <span className="text-sm font-medium text-cyber-primary">Threat Intelligence</span>
                 </button>
                 <button 
                   onClick={() => setSelectedTab('map')}
-                  className="flex flex-col items-center p-4 bg-green-50 hover:bg-green-100 rounded-lg transition-colors border border-green-200"
+                  className="flex flex-col items-center p-4 bg-cyber-success bg-opacity-20 hover:bg-opacity-30 rounded-lg transition-colors border border-cyber-success border-opacity-30"
                 >
-                  <MapPin className="w-8 h-8 text-green-600 mb-2" />
-                  <span className="text-sm font-medium text-green-800">Global Attack Map</span>
+                  <MapPin className="w-8 h-8 text-cyber-success mb-2" />
+                  <span className="text-sm font-medium text-cyber-success">Global Attack Map</span>
                 </button>
                 <button 
                   onClick={() => setSelectedTab('actions')}
-                  className="flex flex-col items-center p-4 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors border border-purple-200"
+                  className="flex flex-col items-center p-4 bg-cyber-accent bg-opacity-20 hover:bg-opacity-30 rounded-lg transition-colors border border-cyber-accent border-opacity-30"
                 >
-                  <Settings className="w-8 h-8 text-purple-600 mb-2" />
-                  <span className="text-sm font-medium text-purple-800">Auto Actions</span>
+                  <Settings className="w-8 h-8 text-cyber-accent mb-2" />
+                  <span className="text-sm font-medium text-cyber-accent">Auto Actions</span>
                 </button>
               </div>
             </div>

@@ -13,7 +13,7 @@ const AutomatedActions = ({ onExecuteAction }) => {
       title: 'Block Malicious IP',
       description: 'Block IP address 203.0.113.45 detected in multiple attack attempts',
       severity: 'high',
-      icon: <Ban className="w-5 h-5 text-red-500" />,
+      icon: <Ban className="w-5 h-5 text-cyber-warning" />,
       urgency: 'immediate'
     },
     {
@@ -23,7 +23,7 @@ const AutomatedActions = ({ onExecuteAction }) => {
       title: 'Isolate Compromised Host',
       description: 'Isolate host 192.168.1.65 showing signs of ransomware infection',
       severity: 'critical',
-      icon: <Shield className="w-5 h-5 text-orange-500" />,
+      icon: <Shield className="w-5 h-5 text-cyber-danger" />,
       urgency: 'immediate'
     },
     {
@@ -33,7 +33,7 @@ const AutomatedActions = ({ onExecuteAction }) => {
       title: 'Escalate Security Breach',
       description: 'Escalate critical system breach to SOC Level 2',
       severity: 'critical',
-      icon: <AlertCircle className="w-5 h-5 text-red-600" />,
+      icon: <AlertCircle className="w-5 h-5 text-cyber-danger" />,
       urgency: 'immediate'
     },
     {
@@ -110,14 +110,14 @@ const AutomatedActions = ({ onExecuteAction }) => {
   return (
     <div className="space-y-6">
       {/* Recommended Actions */}
-      <div className="bg-white rounded-lg shadow-lg p-6">
+      <div className="bg-bg-secondary border border-border-primary rounded-lg shadow-lg p-6">
         <div className="flex items-center gap-3 mb-6">
-          <div className="p-2 bg-blue-100 rounded-lg">
-            <Shield className="w-6 h-6 text-blue-600" />
+          <div className="p-2 bg-cyber-primary bg-opacity-20 rounded-lg">
+            <Shield className="w-6 h-6 text-cyber-primary" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">Automated Recommendations</h3>
-            <p className="text-sm text-gray-600">AI-suggested security actions for immediate execution</p>
+            <h3 className="text-lg font-semibold text-text-primary">Automated Recommendations</h3>
+            <p className="text-sm text-text-muted">AI-suggested security actions for immediate execution</p>
           </div>
         </div>
 
@@ -127,18 +127,27 @@ const AutomatedActions = ({ onExecuteAction }) => {
             const isExecuting = executingAction === action.id;
             
             return (
-              <div key={action.id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+              <div key={action.id} className="border border-border-primary bg-bg-tertiary rounded-lg p-4 hover:border-border-secondary transition-colors">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-start gap-3">
                     {action.icon}
                     <div className="flex-1">
-                      <h4 className="font-medium text-gray-900 mb-1">{action.title}</h4>
-                      <p className="text-sm text-gray-600 mb-2">{action.description}</p>
+                      <h4 className="font-medium text-text-primary mb-1">{action.title}</h4>
+                      <p className="text-sm text-text-secondary mb-2">{action.description}</p>
                       <div className="flex items-center gap-2">
-                        <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium bg-${severityColor}-100 text-${severityColor}-800`}>
+                        <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
+                          severityColor === 'red' ? 'bg-cyber-danger bg-opacity-20 text-cyber-danger border border-cyber-danger border-opacity-30' :
+                          severityColor === 'orange' ? 'bg-cyber-warning bg-opacity-20 text-cyber-warning border border-cyber-warning border-opacity-30' :
+                          severityColor === 'yellow' ? 'bg-cyber-accent bg-opacity-20 text-cyber-accent border border-cyber-accent border-opacity-30' :
+                          'bg-cyber-primary bg-opacity-20 text-cyber-primary border border-cyber-primary border-opacity-30'
+                        }`}>
                           {action.severity.toUpperCase()}
                         </span>
-                        <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${getUrgencyBadge(action.urgency)}`}>
+                        <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
+                          action.urgency === 'immediate' ? 'bg-cyber-danger bg-opacity-20 text-cyber-danger' :
+                          action.urgency === 'scheduled' ? 'bg-cyber-accent bg-opacity-20 text-cyber-accent' :
+                          'bg-cyber-primary bg-opacity-20 text-cyber-primary'
+                        }`}>
                           {action.urgency.toUpperCase()}
                         </span>
                       </div>
@@ -147,14 +156,14 @@ const AutomatedActions = ({ onExecuteAction }) => {
                   <button
                     onClick={() => handleExecuteAction(action)}
                     disabled={isExecuting}
-                    className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="flex items-center gap-2 bg-cyber-primary text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     <Play className="w-4 h-4" />
                     {isExecuting ? 'Executing...' : 'Execute'}
                   </button>
                 </div>
                 
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-text-muted">
                   <strong>Target:</strong> {action.target}
                 </div>
               </div>
@@ -165,14 +174,14 @@ const AutomatedActions = ({ onExecuteAction }) => {
 
       {/* Execution History */}
       {executionResults.length > 0 && (
-        <div className="bg-white rounded-lg shadow-lg p-6">
+        <div className="bg-bg-secondary border border-border-primary rounded-lg shadow-lg p-6">
           <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <CheckCircle className="w-6 h-6 text-green-600" />
+            <div className="p-2 bg-cyber-success bg-opacity-20 rounded-lg">
+              <CheckCircle className="w-6 h-6 text-cyber-success" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Recent Executions</h3>
-              <p className="text-sm text-gray-600">History of automated security actions</p>
+              <h3 className="text-lg font-semibold text-text-primary">Recent Executions</h3>
+              <p className="text-sm text-text-muted">History of automated security actions</p>
             </div>
           </div>
 
@@ -180,29 +189,29 @@ const AutomatedActions = ({ onExecuteAction }) => {
             {executionResults.map((execution) => (
               <div key={execution.id} className={`p-4 rounded-lg border ${
                 execution.status === 'success' 
-                  ? 'bg-green-50 border-green-200' 
-                  : 'bg-red-50 border-red-200'
+                  ? 'bg-cyber-success bg-opacity-20 border-cyber-success border-opacity-30' 
+                  : 'bg-cyber-danger bg-opacity-20 border-cyber-danger border-opacity-30'
               }`}>
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex items-center gap-2">
                     {execution.status === 'success' ? (
-                      <CheckCircle className="w-5 h-5 text-green-600" />
+                      <CheckCircle className="w-5 h-5 text-cyber-success" />
                     ) : (
-                      <XCircle className="w-5 h-5 text-red-600" />
+                      <XCircle className="w-5 h-5 text-cyber-danger" />
                     )}
-                    <h4 className="font-medium text-gray-900">{execution.action.title}</h4>
+                    <h4 className="font-medium text-text-primary">{execution.action.title}</h4>
                   </div>
-                  <span className="text-xs text-gray-500">{formatTimeAgo(execution.timestamp)}</span>
+                  <span className="text-xs text-text-muted">{formatTimeAgo(execution.timestamp)}</span>
                 </div>
                 
                 <p className={`text-sm ${
-                  execution.status === 'success' ? 'text-green-800' : 'text-red-800'
+                  execution.status === 'success' ? 'text-cyber-success' : 'text-cyber-danger'
                 } mb-2`}>
                   {execution.result.message}
                 </p>
                 
                 {execution.result.execution_id && (
-                  <div className="text-xs text-gray-600">
+                  <div className="text-xs text-text-muted">
                     <strong>Execution ID:</strong> {execution.result.execution_id}
                   </div>
                 )}
