@@ -9,6 +9,15 @@ develop-eggs/
 dist/
 downloads/
 eggs/
+
+# Node.js dependencies
+node_modules/
+frontend/node_modules/
+
+# Cache files
+.cache/
+frontend/.cache/
+frontend/node_modules/.cache/
 .eggs/
 lib/
 lib64/

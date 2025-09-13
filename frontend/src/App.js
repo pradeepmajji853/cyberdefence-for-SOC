@@ -36,7 +36,6 @@ function App() {
   const [logs, setLogs] = useState([]);
   const [analysis, setAnalysis] = useState(null);
   const [chatHistory, setChatHistory] = useState([]);
-  const [currentMessage, setCurrentMessage] = useState('');
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(false);
   const [autoRefresh, setAutoRefresh] = useState(true);
@@ -136,23 +135,26 @@ function App() {
     }
   };
 
-  const handleSendMessage = async () => {
-    if (!currentMessage.trim()) return;
+  const handleSendMessage = async (messageContent) => {
+    // Handle message content directly from the EnhancedChat component
+    const message = messageContent;
+    if (!message.trim()) return;
     
-    const userMessage = { type: 'user', content: currentMessage };
+    const userMessage = { type: 'user', content: message };
     setChatHistory(prev => [...prev, userMessage]);
-    setCurrentMessage('');
     setLoading(true);
 
     try {
-      const response = await api.chat(currentMessage);
+      const response = await api.chat(message);
       const aiMessage = { type: 'ai', content: response.answer };
       setChatHistory(prev => [...prev, aiMessage]);
     } catch (error) {
+      console.error('Chat error:', error);
       const errorMessage = { type: 'ai', content: 'Sorry, I encountered an error. Please try again.' };
       setChatHistory(prev => [...prev, errorMessage]);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   // Security action handlers

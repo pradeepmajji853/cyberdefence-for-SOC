@@ -59,32 +59,32 @@ const EnhancedChat = ({ onSendMessage, chatHistory, loading }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg flex flex-col h-[600px]">
+    <div className="bg-bg-secondary border border-border-primary rounded-lg shadow-lg flex flex-col h-[600px]">
       {/* Header */}
-      <div className="flex items-center gap-3 p-6 border-b border-gray-200">
-        <div className="p-2 bg-blue-100 rounded-lg">
-          <MessageSquare className="w-6 h-6 text-blue-600" />
+      <div className="flex items-center gap-3 p-6 border-b border-border-primary bg-bg-tertiary rounded-t-lg">
+        <div className="p-2 bg-cyber-primary bg-opacity-20 rounded-lg">
+          <MessageSquare className="w-6 h-6 text-cyber-primary" />
         </div>
         <div className="flex-1">
-          <h3 className="text-lg font-semibold text-gray-900">AI Security Assistant</h3>
-          <p className="text-sm text-gray-600">Ask me anything about your security posture</p>
+          <h3 className="text-lg font-semibold text-text-primary">AI Security Assistant</h3>
+          <p className="text-sm text-text-muted">Ask me anything about your security posture</p>
         </div>
-        <div className="flex items-center gap-1 text-sm text-green-600 bg-green-50 px-2 py-1 rounded-full">
-          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+        <div className="flex items-center gap-1 text-sm text-cyber-success bg-cyber-success bg-opacity-20 px-2 py-1 rounded-full">
+          <div className="w-2 h-2 bg-cyber-success rounded-full animate-pulse"></div>
           <span>Online</span>
         </div>
       </div>
 
       {/* Quick Actions */}
       {chatHistory.length === 0 && (
-        <div className="p-4 border-b border-gray-200">
-          <div className="text-sm font-medium text-gray-700 mb-3">Quick Actions</div>
+        <div className="p-4 border-b border-border-primary">
+          <div className="text-sm font-medium text-text-primary mb-3">Quick Actions</div>
           <div className="grid grid-cols-2 gap-2">
             {quickActions.map((action, index) => (
               <button
                 key={index}
                 onClick={() => handleQuickAction(action.query)}
-                className="flex items-center gap-2 p-2 text-sm text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                className="flex items-center gap-2 p-2 text-sm text-text-primary bg-bg-tertiary rounded-lg hover:bg-bg-hover transition-colors border border-border-secondary"
               >
                 {action.icon}
                 <span>{action.text}</span>
@@ -97,10 +97,10 @@ const EnhancedChat = ({ onSendMessage, chatHistory, loading }) => {
       {/* Chat Messages */}
       <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 space-y-4">
         {chatHistory.length === 0 && (
-          <div className="text-center text-gray-500 mt-8">
-            <Bot className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-            <h4 className="font-medium text-gray-700 mb-2">Welcome to your AI Security Assistant</h4>
-            <p className="text-sm text-gray-600">Ask me about threats, incidents, or security recommendations.</p>
+          <div className="text-center text-text-muted mt-8">
+            <Bot className="w-12 h-12 mx-auto mb-3 text-text-muted" />
+            <h4 className="font-medium text-text-primary mb-2">Welcome to your AI Security Assistant</h4>
+            <p className="text-sm text-text-muted">Ask me about threats, incidents, or security recommendations.</p>
           </div>
         )}
 
@@ -109,18 +109,18 @@ const EnhancedChat = ({ onSendMessage, chatHistory, loading }) => {
             <div className={`flex gap-3 max-w-[80%] ${message.type === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
               <div className={`p-2 rounded-full flex-shrink-0 ${
                 message.type === 'user' 
-                  ? 'bg-blue-100 text-blue-600' 
-                  : 'bg-gray-100 text-gray-600'
+                  ? 'bg-cyber-primary bg-opacity-20 text-cyber-primary' 
+                  : 'bg-bg-tertiary text-text-muted'
               }`}>
                 {message.type === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
               </div>
               <div className={`p-3 rounded-lg ${
                 message.type === 'user'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-50 text-gray-900'
+                  ? 'bg-cyber-primary text-white'
+                  : 'bg-bg-tertiary text-text-primary'
               }`}>
                 <div 
-                  className={`text-sm ${message.type === 'user' ? 'text-white' : 'text-gray-900'}`}
+                  className={`text-sm ${message.type === 'user' ? 'text-white' : 'text-text-primary'}`}
                   dangerouslySetInnerHTML={{ 
                     __html: message.type === 'ai' ? formatMessage(message.content) : message.content 
                   }}
@@ -132,14 +132,14 @@ const EnhancedChat = ({ onSendMessage, chatHistory, loading }) => {
 
         {loading && (
           <div className="flex gap-3 justify-start">
-            <div className="p-2 bg-gray-100 text-gray-600 rounded-full">
+            <div className="p-2 bg-bg-tertiary text-text-muted rounded-full">
               <Bot className="w-4 h-4" />
             </div>
-            <div className="bg-gray-50 text-gray-900 p-3 rounded-lg">
+            <div className="bg-bg-tertiary text-text-primary p-3 rounded-lg">
               <div className="flex gap-1">
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                <div className="w-2 h-2 bg-cyber-primary rounded-full animate-bounce"></div>
+                <div className="w-2 h-2 bg-cyber-primary rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                <div className="w-2 h-2 bg-cyber-primary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
               </div>
             </div>
           </div>
@@ -148,14 +148,14 @@ const EnhancedChat = ({ onSendMessage, chatHistory, loading }) => {
 
       {/* Suggested Queries */}
       {chatHistory.length === 0 && (
-        <div className="p-4 border-t border-gray-200">
-          <div className="text-sm font-medium text-gray-700 mb-3">Suggested Questions</div>
+        <div className="p-4 border-t border-border-primary">
+          <div className="text-sm font-medium text-text-primary mb-3">Suggested Questions</div>
           <div className="flex flex-wrap gap-2">
             {suggestedQueries.slice(0, 4).map((query, index) => (
               <button
                 key={index}
                 onClick={() => handleSuggestedQuery(query)}
-                className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-full hover:bg-blue-100 transition-colors"
+                className="text-xs bg-cyber-primary bg-opacity-20 text-cyber-primary px-3 py-2 rounded-full hover:bg-opacity-30 transition-colors border border-cyber-primary border-opacity-30"
               >
                 {query}
               </button>
@@ -165,7 +165,7 @@ const EnhancedChat = ({ onSendMessage, chatHistory, loading }) => {
       )}
 
       {/* Input Area */}
-      <div className="p-4 border-t border-gray-200">
+      <div className="p-4 border-t border-border-primary">
         <div className="flex gap-3">
           <div className="flex-1 relative">
             <textarea
@@ -173,7 +173,7 @@ const EnhancedChat = ({ onSendMessage, chatHistory, loading }) => {
               onChange={(e) => setCurrentMessage(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Ask about security incidents, threats, or get recommendations..."
-              className="w-full p-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full p-3 bg-bg-tertiary border border-border-primary rounded-lg resize-none focus:ring-2 focus:ring-cyber-primary focus:border-cyber-primary text-text-primary placeholder-text-muted"
               rows="1"
               style={{ minHeight: '44px', maxHeight: '120px' }}
             />
@@ -181,7 +181,7 @@ const EnhancedChat = ({ onSendMessage, chatHistory, loading }) => {
           <button
             onClick={handleSendMessage}
             disabled={!currentMessage.trim() || loading}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+            className="px-4 py-2 bg-cyber-primary text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
           >
             <Send className="w-4 h-4" />
           </button>
