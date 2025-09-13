@@ -54,7 +54,7 @@ function App() {
   const fetchLogs = async () => {
     try {
       console.log('Fetching logs...');
-      const data = await api.getLogs({ limit: 100 }); // Increased limit to show more logs
+      const data = await api.getLogs({ limit: 100 });
       console.log('Logs received:', data?.length);
       setLogs(data);
     } catch (error) {
@@ -65,7 +65,7 @@ function App() {
   const fetchAnalysis = async () => {
     try {
       console.log('Fetching analysis...');
-      const data = await api.getAnalysis(24); // Look back 24 hours instead of 2
+      const data = await api.getAnalysis(24);
       console.log('Analysis received:', data);
       setAnalysis(data);
     } catch (error) {
@@ -116,7 +116,6 @@ function App() {
     try {
       const result = await api.simulateAttack(attackType);
       setSimulationResult(result);
-      // Refresh data after simulation
       await fetchLogs();
       await fetchStats();
     } catch (error) {
@@ -136,7 +135,6 @@ function App() {
   };
 
   const handleSendMessage = async (messageContent) => {
-    // Handle message content directly from the EnhancedChat component
     const message = messageContent;
     if (!message.trim()) return;
     
@@ -185,7 +183,6 @@ function App() {
           message = `Analyze security action: ${action}`;
       }
       
-      // Send query directly to AI for analysis response (not chat)
       const response = await api.chat(message);
       
       setAnalysisResponse({
@@ -210,7 +207,6 @@ function App() {
 
   // Auto-refresh effect
   useEffect(() => {
-    // Initial fetch
     fetchLogs();
     fetchAnalysis();
     fetchStats();
@@ -226,7 +222,7 @@ function App() {
         fetchThreatIntelligence();
         fetchAttackMapData();
         fetchAnomalyData();
-      }, 10000); // Refresh every 10 seconds
+      }, 10000);
       return () => clearInterval(interval);
     }
   }, [autoRefresh]);
@@ -237,30 +233,6 @@ function App() {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
   }, [chatHistory]);
-
-  const getSeverityColor = (severity) => {
-    switch (severity?.toLowerCase()) {
-      case 'critical': return 'bg-cyber-danger text-white';
-      case 'high': return 'bg-orange-500 text-white';
-      case 'medium': return 'bg-cyber-warning text-white';
-      case 'low': return 'bg-cyber-success text-white';
-      default: return 'bg-gray-500 text-white';
-    }
-  };
-
-  const getSeverityIcon = (severity) => {
-    switch (severity?.toLowerCase()) {
-      case 'critical': return <XCircle className="h-4 w-4" />;
-      case 'high': return <AlertTriangle className="h-4 w-4" />;
-      case 'medium': return <AlertCircle className="h-4 w-4" />;
-      case 'low': return <Info className="h-4 w-4" />;
-      default: return <Info className="h-4 w-4" />;
-    }
-  };
-
-  const formatTimestamp = (timestamp) => {
-    return new Date(timestamp).toLocaleString();
-  };
 
   // Generate chart data from logs
   const generateChartData = () => {
@@ -277,21 +249,6 @@ function App() {
 
     return Object.values(hourlyData).sort((a, b) => new Date(a.time) - new Date(b.time));
   };
-
-  const StatCard = ({ icon, title, value, subtitle, color = "cyber-primary" }) => (
-    <div className="bg-bg-secondary border border-border-primary rounded-lg p-4 hover:border-border-accent transition-colors">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-text-muted text-sm font-medium">{title}</p>
-          <p className={`text-2xl font-bold text-${color}`}>{value}</p>
-          {subtitle && <p className="text-text-secondary text-xs mt-1">{subtitle}</p>}
-        </div>
-        <div className={`text-${color} opacity-75`}>
-          {icon}
-        </div>
-      </div>
-    </div>
-  );
 
   const LogCard = ({ log, index }) => (
     <div className="bg-bg-secondary border border-border-primary rounded-lg p-4 hover:border-border-accent transition-colors">
@@ -319,7 +276,6 @@ function App() {
   const handleGenerateLog = async () => {
     setLoading(true);
     try {
-      // More realistic log generation with varied scenarios
       const logTemplates = [
         {
           event_type: 'Malware Detection',
@@ -350,45 +306,14 @@ function App() {
             'Unauthorized network mapping attempt blocked.',
             'Lateral movement detected across network segments.'
           ]
-        },
-        {
-          event_type: 'Phishing Attempt',
-          severity: 'medium',
-          message_templates: [
-            'Sophisticated spear-phishing email targeting military personnel.',
-            'Credential harvesting website blocked by security filters.',
-            'Social engineering attempt via fake military communication.',
-            'Suspicious email with military-themed content intercepted.'
-          ]
-        },
-        {
-          event_type: 'Firewall Alert',
-          severity: 'medium',
-          message_templates: [
-            'Blocked connection attempt to known malicious domain.',
-            'Unusual outbound traffic to suspicious geographic location.',
-            'Multiple connections blocked to blacklisted IP addresses.',
-            'Protocol violation detected and connection terminated.'
-          ]
-        },
-        {
-          event_type: 'System Monitoring',
-          severity: 'low',
-          message_templates: [
-            'Routine security scan completed successfully.',
-            'System integrity check passed all validation tests.',
-            'Automated backup completed without errors.',
-            'Security patch installation completed successfully.'
-          ]
         }
       ];
 
       const template = logTemplates[Math.floor(Math.random() * logTemplates.length)];
       const message = template.message_templates[Math.floor(Math.random() * template.message_templates.length)];
       
-      // Generate more realistic IP addresses
-      const externalIPs = ['203.0.113.45', '198.51.100.23', '93.184.216.34', '185.220.101.42', '172.16.254.78'];
-      const internalIPs = ['192.168.1.100', '192.168.1.50', '192.168.1.205', '192.168.1.150', '192.168.1.75'];
+      const externalIPs = ['203.0.113.45', '198.51.100.23', '93.184.216.34', '185.220.101.42'];
+      const internalIPs = ['192.168.1.100', '192.168.1.50', '192.168.1.205', '192.168.1.150'];
       
       const isInbound = Math.random() > 0.5;
       const source_ip = isInbound 
@@ -408,108 +333,146 @@ function App() {
       };
 
       await api.createLog(logEntry);
-      await fetchLogs(); // Refresh logs
+      await fetchLogs();
     } catch (error) {
       console.error('Failed to generate log:', error);
     }
     setLoading(false);
   };
 
+  const getSeverityColor = (severity) => {
+    switch (severity?.toLowerCase()) {
+      case 'critical': return 'bg-cyber-danger text-white';
+      case 'high': return 'bg-orange-500 text-white';
+      case 'medium': return 'bg-cyber-warning text-white';
+      case 'low': return 'bg-cyber-success text-white';
+      default: return 'bg-gray-500 text-white';
+    }
+  };
+
+  const getSeverityIcon = (severity) => {
+    switch (severity?.toLowerCase()) {
+      case 'critical': return <XCircle className="h-4 w-4" />;
+      case 'high': return <AlertTriangle className="h-4 w-4" />;
+      case 'medium': return <AlertCircle className="h-4 w-4" />;
+      case 'low': return <Info className="h-4 w-4" />;
+      default: return <Info className="h-4 w-4" />;
+    }
+  };
+
+  const formatTimestamp = (timestamp) => {
+    return new Date(timestamp).toLocaleString();
+  };
+
+  const StatCard = ({ icon, title, value, subtitle, color = "cyber-primary" }) => (
+    <div className="bg-bg-secondary border border-border-primary rounded-lg p-4 hover:border-border-accent transition-colors">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-text-muted text-sm font-medium">{title}</p>
+          <p className={`text-2xl font-bold text-${color}`}>{value}</p>
+          {subtitle && <p className="text-text-secondary text-xs mt-1">{subtitle}</p>}
+        </div>
+        <div className={`text-${color} opacity-75`}>
+          {icon}
+        </div>
+      </div>
+    </div>
+  );
+
   return (
-    <div className="min-h-screen bg-bg-primary text-text-primary">
-      {/* Professional Header */}
-      <header className="bg-bg-secondary border-b border-border-primary shadow-lg">
-        <div className="px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-3">
-                <Shield className="h-8 w-8 text-cyber-primary" />
-                <div>
-                  <h1 className="text-xl font-bold text-text-primary">
-                    Cyber Defense Assistant
-                  </h1>
-                  <p className="text-text-muted text-sm">Military Security Operations Center</p>
-                </div>
-              </div>
-            </div>              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2 px-3 py-2 bg-bg-tertiary rounded-lg">
-                  <div className="w-2 h-2 bg-cyber-success rounded-full animate-pulse"></div>
-                  <span className="text-cyber-success text-sm font-medium">System Online</span>
-                </div>
-                
-                {analysis && (
-                  <div className="flex items-center space-x-2 px-3 py-2 bg-bg-tertiary rounded-lg">
-                    <div className={`w-2 h-2 rounded-full ${
-                      analysis.severity_classification === 'critical' ? 'bg-cyber-danger animate-pulse' :
-                      analysis.severity_classification === 'high' ? 'bg-cyber-warning animate-pulse' :
-                      analysis.severity_classification === 'medium' ? 'bg-cyber-accent' :
-                      'bg-cyber-success'
-                    }`}></div>
-                    <span className={`text-sm font-medium ${
-                      analysis.severity_classification === 'critical' ? 'text-cyber-danger' :
-                      analysis.severity_classification === 'high' ? 'text-cyber-warning' :
-                      analysis.severity_classification === 'medium' ? 'text-cyber-accent' :
-                      'text-cyber-success'
-                    }`}>
-                      Threat Level: {analysis.severity_classification?.toUpperCase()}
-                    </span>
-                  </div>
-                )}
-                
-                <button
-                  onClick={() => setAutoRefresh(!autoRefresh)}
-                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
-                    autoRefresh 
-                      ? 'bg-cyber-primary text-white' 
-                      : 'bg-bg-tertiary text-text-secondary hover:bg-bg-hover'
-                  }`}
-                >
-                  <RefreshCw className={`h-4 w-4 ${autoRefresh ? 'animate-spin' : ''}`} />
-                  <span className="text-sm">Auto Refresh</span>
-                </button>
-              </div>
+    <div className="min-h-screen bg-bg-primary text-text-primary flex">
+      {/* Sidebar */}
+      <aside className="w-64 bg-bg-secondary border-r border-border-primary flex flex-col">
+        {/* Header */}
+        <div className="p-6 border-b border-border-primary">
+          <div className="flex items-center space-x-3">
+            <Shield className="h-8 w-8 text-cyber-primary" />
+            <div>
+              <h1 className="text-lg font-bold text-text-primary">
+                Cyber Defense Assistant
+              </h1>
+              <p className="text-text-muted text-xs">Military Security Operations Center</p>
+            </div>
           </div>
         </div>
-      </header>
 
-      {/* Navigation Tabs */}
-      <nav className="bg-bg-secondary border-b border-border-primary px-6">
-        <div className="flex space-x-6 overflow-x-auto">
-          {[
-            { id: 'dashboard', label: 'Dashboard', icon: Activity },
-            { id: 'simulation', label: 'Attack Simulation', icon: Target },
-            { id: 'intelligence', label: 'Threat Intel', icon: Globe },
-            { id: 'map', label: 'Attack Map', icon: MapPin },
-            { id: 'actions', label: 'Auto Actions', icon: Settings },
-            { id: 'anomalies', label: 'Anomalies', icon: AlertTriangle },
-            { id: 'logs', label: 'Security Logs', icon: Eye },
-            { id: 'analysis', label: 'AI Analysis', icon: Zap },
-            { id: 'chat', label: 'AI Assistant', icon: MessageSquare }
-          ].map(tab => {
-            const Icon = tab.icon;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setSelectedTab(tab.id)}
-                className={`flex items-center space-x-2 px-4 py-3 border-b-2 transition-colors whitespace-nowrap ${
-                  selectedTab === tab.id
-                    ? 'border-cyber-primary text-cyber-primary'
-                    : 'border-transparent text-text-secondary hover:text-text-primary hover:border-border-secondary'
-                }`}
-              >
-                <Icon className="h-4 w-4" />
-                <span className="text-sm font-medium">{tab.label}</span>
-              </button>
-            );
-          })}
+        {/* Navigation */}
+        <nav className="flex-1 p-4">
+          <div className="space-y-2">
+            {[
+              { id: 'dashboard', label: 'Dashboard', icon: Activity },
+              { id: 'simulation', label: 'Attack Simulation', icon: Target },
+              { id: 'intelligence', label: 'Threat Intel', icon: Globe },
+              { id: 'map', label: 'Attack Map', icon: MapPin },
+              { id: 'actions', label: 'Auto Actions', icon: Settings },
+              { id: 'anomalies', label: 'Anomalies', icon: AlertTriangle },
+              { id: 'logs', label: 'Security Logs', icon: Eye },
+              { id: 'analysis', label: 'AI Analysis', icon: Zap },
+              { id: 'chat', label: 'AI Assistant', icon: MessageSquare }
+            ].map(tab => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setSelectedTab(tab.id)}
+                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-left ${
+                    selectedTab === tab.id
+                      ? 'bg-cyber-primary text-white shadow-lg'
+                      : 'text-text-secondary hover:text-text-primary hover:bg-bg-hover'
+                  }`}
+                >
+                  <Icon className="h-5 w-5" />
+                  <span className="font-medium">{tab.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </nav>
+
+        {/* Status Indicators */}
+        <div className="p-4 border-t border-border-primary space-y-3">
+          <div className="flex items-center space-x-2 px-3 py-2 bg-bg-tertiary rounded-lg">
+            <div className="w-2 h-2 bg-cyber-success rounded-full animate-pulse"></div>
+            <span className="text-cyber-success text-sm font-medium">System Online</span>
+          </div>
+          
+          {analysis && (
+            <div className="flex items-center space-x-2 px-3 py-2 bg-bg-tertiary rounded-lg">
+              <div className={`w-2 h-2 rounded-full ${
+                analysis.severity_classification === 'critical' ? 'bg-cyber-danger animate-pulse' :
+                analysis.severity_classification === 'high' ? 'bg-cyber-warning animate-pulse' :
+                analysis.severity_classification === 'medium' ? 'bg-cyber-accent' :
+                'bg-cyber-success'
+              }`}></div>
+              <span className={`text-xs font-medium ${
+                analysis.severity_classification === 'critical' ? 'text-cyber-danger' :
+                analysis.severity_classification === 'high' ? 'text-cyber-warning' :
+                analysis.severity_classification === 'medium' ? 'text-cyber-accent' :
+                'text-cyber-success'
+              }`}>
+                Threat: {analysis.severity_classification?.toUpperCase()}
+              </span>
+            </div>
+          )}
+          
+          <button
+            onClick={() => setAutoRefresh(!autoRefresh)}
+            className={`w-full flex items-center justify-center space-x-2 px-3 py-2 rounded-lg transition-colors ${
+              autoRefresh 
+                ? 'bg-cyber-primary text-white' 
+                : 'bg-bg-tertiary text-text-secondary hover:bg-bg-hover'
+            }`}
+          >
+            <RefreshCw className={`h-4 w-4 ${autoRefresh ? 'animate-spin' : ''}`} />
+            <span className="text-sm">Auto Refresh</span>
+          </button>
         </div>
-      </nav>
+      </aside>
 
       {/* Main Content */}
-      <main className="p-6">
+      <main className="flex-1 p-6 overflow-y-auto">
         {selectedTab === 'dashboard' && (
           <div className="space-y-6">
-            {/* Stats Overview */}
             <div>
               <h2 className="text-lg font-semibold text-text-primary mb-4">Security Overview</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -544,9 +507,7 @@ function App() {
               </div>
             </div>
 
-            {/* Charts and Threat Level */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Activity Timeline */}
               <div className="lg:col-span-2 bg-bg-secondary border border-border-primary rounded-lg p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold text-text-primary">Activity Timeline</h3>
@@ -584,13 +545,11 @@ function App() {
                 </div>
               </div>
 
-              {/* Real-time Threat Level Gauge */}
               <div>
                 <ThreatLevelGauge threatLevel="dynamic" stats={stats} />
               </div>
             </div>
 
-            {/* Quick Actions Overview */}
             <div className="bg-bg-secondary border border-border-primary rounded-lg p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-text-primary">Quick Security Actions</h3>
@@ -630,7 +589,6 @@ function App() {
           </div>
         )}
 
-        {/* NEW ENHANCED FEATURES */}
         {selectedTab === 'simulation' && (
           <div className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -720,7 +678,6 @@ function App() {
             
             {analysis ? (
               <div className="grid gap-6">
-                {/* Analysis Summary */}
                 <div className="bg-bg-secondary border border-border-primary rounded-lg p-6">
                   <div className="flex items-center space-x-3 mb-4">
                     <Zap className="h-6 w-6 text-cyber-warning" />
@@ -729,7 +686,6 @@ function App() {
                   <p className="text-text-secondary leading-relaxed">{analysis.summary}</p>
                 </div>
 
-                {/* Action Response Display */}
                 {(analysisResponse || analysisLoading) && (
                   <div className="bg-bg-secondary border border-border-primary rounded-lg p-6">
                     <div className="flex items-center space-x-3 mb-4">
@@ -795,11 +751,10 @@ function App() {
                   </div>
                 )}
 
-                {/* Threats Identified */}
                 <div className="bg-bg-secondary border border-border-primary rounded-lg p-6">
                   <h3 className="text-lg font-semibold text-text-primary mb-4">Identified Threats</h3>
                   <div className="space-y-3">
-                    {analysis.threats_identified.map((threat, i) => (
+                    {analysis.threats_identified?.map((threat, i) => (
                       <div key={i} className="flex items-start space-x-3 p-3 bg-bg-tertiary rounded-lg">
                         <AlertTriangle className="h-5 w-5 text-cyber-danger mt-0.5 flex-shrink-0" />
                         <p className="text-text-secondary">{threat}</p>
@@ -808,7 +763,6 @@ function App() {
                   </div>
                 </div>
 
-                {/* Recommendations */}
                 <div className="bg-bg-secondary border border-border-primary rounded-lg p-6">
                   <h3 className="text-lg font-semibold text-text-primary mb-4">Recommended Actions</h3>
                   <div className="space-y-3">
@@ -830,7 +784,6 @@ function App() {
                   </div>
                 </div>
 
-                {/* Quick Security Actions */}
                 <div className="bg-bg-secondary border border-border-primary rounded-lg p-6">
                   <h3 className="text-lg font-semibold text-text-primary mb-4">Quick Security Actions</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -872,7 +825,6 @@ function App() {
                   </div>
                 </div>
 
-                {/* Overall Severity */}
                 <div className="bg-bg-secondary border border-border-primary rounded-lg p-6">
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-semibold text-text-primary">Overall Risk Assessment</h3>

@@ -121,7 +121,7 @@ Respond as a professional SOC analyst would."""
             return self._extract_text_from_gemini(response)
         except Exception as e:
             print(f"Gemini chat error: {e}")
-            return self._fallback_chat_response(question)
+            return self._fallback_chat_response(question, logs_context)
     
     def _call_gemini_api(self, prompt: str) -> Dict:
         """Make a request to Gemini API"""
@@ -407,10 +407,62 @@ Respond as a professional SOC analyst would."""
             "total_logs_analyzed": log_count
         }
     
-    def _fallback_chat_response(self, question: str) -> str:
-        """Fallback chat response when Gemini API is not available"""
+    def _fallback_chat_response(self, question: str, logs_context: List[Dict] = None) -> str:
+        """Enhanced fallback chat response when Gemini API is not available"""
         question_lower = question.lower()
         
+        if logs_context:
+            # Try to provide more intelligent responses based on actual log data
+            stats = self._get_log_statistics(logs_context)
+            
+            if any(word in question_lower for word in ['ip', 'address', 'source']):
+                top_ips = list(stats['source_ips'].items())[:3]
+                response = "**IP Analysis (Local Analysis):**\n"
+                response += f"Analyzing {len(logs_context)} security events:\n\n"
+                for ip, count in top_ips:
+                    if ip not in ['unknown', '127.0.0.1', 'localhost']:
+                        response += f"• {ip}: {count} events detected\n"
+                return response
+                
+            elif any(word in question_lower for word in ['attack', 'threat', 'malware', 'status', 'security', 'situation', 'environment', 'current', 'understand', 'help']):
+                response = "**Security Status (Local Analysis):**\n"
+                response += f"Current threat landscape from {len(logs_context)} recent events:\n\n"
+                response += f"• Critical: {stats['critical']} events\n"
+                response += f"• High: {stats['high']} events\n"
+                response += f"• Medium: {stats['medium']} events\n"
+                response += f"• Low: {stats['low']} events\n\n"
+                
+                top_threats = list(stats['event_types'].items())[:3]
+                response += "Top threats:\n"
+                for threat_type, count in top_threats:
+                    response += f"• {threat_type}: {count} occurrences\n"
+                    
+                # Add some analysis
+                if stats['critical'] > 0:
+                    response += f"\n⚠️ **URGENT**: {stats['critical']} critical events require immediate attention"
+                if stats['high'] >= 10:
+                    response += f"\n⚡ **HIGH PRIORITY**: {stats['high']} high-severity events need review"
+                    
+                return response
+                
+            elif any(word in question_lower for word in ['recommend', 'action', 'do']):
+                response = "**Recommendations (Local Analysis):**\n"
+                response += "Based on current security events:\n\n"
+                if stats['critical'] > 0:
+                    response += f"🚨 URGENT: {stats['critical']} critical events require immediate attention\n"
+                if stats['high'] >= 5:
+                    response += f"⚠️ HIGH: {stats['high']} high-severity events need review\n"
+                    
+                # Add specific recommendations based on top event types
+                top_events = list(stats['event_types'].items())[:2]
+                for event_type, count in top_events:
+                    if 'brute_force' in event_type.lower():
+                        response += f"• Implement SSH rate limiting ({count} brute force attempts)\n"
+                    elif 'malware' in event_type.lower():
+                        response += f"• Quarantine affected systems ({count} malware detections)\n"
+                return response
+        
+        # Generic responses when no log context available
         if any(word in question_lower for word in ['ip', 'address', 'source']):
             return "I can help analyze IP addresses and network traffic patterns. Please check the security logs for detailed information about specific IP activities."
         elif any(word in question_lower for word in ['attack', 'threat', 'malware']):
